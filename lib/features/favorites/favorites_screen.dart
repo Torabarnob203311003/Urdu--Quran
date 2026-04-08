@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../player/player_screen.dart';
 
 class FavoritesScreen extends StatefulWidget {
   final VoidCallback? onBackToHome;
@@ -10,7 +11,7 @@ class FavoritesScreen extends StatefulWidget {
 }
 
 class _FavoritesScreenState extends State<FavoritesScreen> {
-  // Track which item is currently playing
+  // Track which item is currently playing (in-list view)
   int? playingIndex;
 
   final List<String> favorites = [
@@ -42,12 +43,12 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                       GestureDetector(
                         onTap: widget.onBackToHome,
                         child: Container(
-                          padding: const EdgeInsets.all(12), // Increased padding
+                          padding: const EdgeInsets.all(12),
                           decoration: const BoxDecoration(
                             color: Color(0xFF1A1A1A),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.arrow_back, color: Colors.white, size: 24), // Increased size
+                          child: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
                         ),
                       ),
                       const Expanded(
@@ -56,13 +57,13 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                             'favorites',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 28, // Increased size
+                              fontSize: 28,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(width: 48), // Adjusted to balance larger back button
+                      const SizedBox(width: 48),
                     ],
                   ),
                 ),
@@ -102,17 +103,17 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
     return GestureDetector(
       onTap: () {
-        setState(() {
-          if (playingIndex == index) {
-            playingIndex = null; // Pause if clicking same item
-          } else {
-            playingIndex = index; // Play new item
-          }
-        });
+        // Navigate to full player screen when card is clicked
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PlayerScreen(surahName: name),
+          ),
+        );
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(18), // Increased padding
+        padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
           color: const Color(0xFF1A1A1A),
           borderRadius: BorderRadius.circular(15),
@@ -122,21 +123,36 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           children: [
             Text(
               name,
-              style: const TextStyle(color: Colors.white, fontSize: 19), // Increased size
+              style: const TextStyle(color: Colors.white, fontSize: 19),
             ),
             const Spacer(),
-            const Icon(Icons.download_outlined, color: Colors.grey, size: 24), // Increased size
+            const Icon(Icons.download_outlined, color: Colors.grey, size: 24),
             const SizedBox(width: 15),
-            isPlaying
-                ? _buildWaveform() // Waveform when playing
-                : Container(
-                    padding: const EdgeInsets.all(10), // Increased padding
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF007BFF),
-                      shape: BoxShape.circle,
+            GestureDetector(
+              onTapDown: (details) {
+                // Prevent tapping the play icon from navigating to PlayerScreen
+              },
+              onTap: () {
+                // Only show waveform in the list when blue play icon is clicked
+                setState(() {
+                  if (playingIndex == index) {
+                    playingIndex = null;
+                  } else {
+                    playingIndex = index;
+                  }
+                });
+              },
+              child: isPlaying
+                  ? _buildWaveform()
+                  : Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF007BFF),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.play_arrow, color: Colors.white, size: 24),
                     ),
-                    child: const Icon(Icons.play_arrow, color: Colors.white, size: 24), // Increased size
-                  ),
+            ),
           ],
         ),
       ),
@@ -149,8 +165,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       children: List.generate(4, (index) {
         return Container(
           margin: const EdgeInsets.symmetric(horizontal: 2.0),
-          width: 4, // Increased width
-          height: [20.0, 35.0, 25.0, 15.0][index], // Increased heights
+          width: 4,
+          height: [20.0, 35.0, 25.0, 15.0][index],
           decoration: BoxDecoration(
             color: const Color(0xFF007BFF),
             borderRadius: BorderRadius.circular(10),
