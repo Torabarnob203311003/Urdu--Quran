@@ -11,24 +11,93 @@ class PlayerScreen extends StatefulWidget {
 
 class _PlayerScreenState extends State<PlayerScreen> {
   double _currentSliderValue = 8.0;
+  String _currentSpeed = 'x1';
+
+  final List<String> _speeds = ['x 0.7', 'Normal', 'x 1.5', 'x 2'];
+
+  void _showPlaybackSpeedModal() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF1A1A1A),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Set Playback Speed',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 24),
+              ..._speeds.map((speed) {
+                bool isSelected = (speed == 'Normal' && _currentSpeed == 'x1') || 
+                                 (speed == _currentSpeed);
+                
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _currentSpeed = speed == 'Normal' ? 'x1' : speed;
+                    });
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    decoration: BoxDecoration(
+                      color: isSelected ? Colors.white.withAlpha(20) : Colors.transparent,
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Center(
+                      child: Text(
+                        speed,
+                        style: TextStyle(
+                          color: isSelected ? const Color(0xFF007BFF) : Colors.white,
+                          fontSize: 18,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       body: Stack(
         children: [
           // Background Image (Mosque)
           Container(
             width: double.infinity,
             height: double.infinity,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/Home (2).png'), // Reusing this or use a specific one
+                image: const AssetImage('assets/Home (2).png'),
                 fit: BoxFit.cover,
+                colorFilter: ColorFilter.mode(
+                  Colors.black.withAlpha(40),
+                  BlendMode.darken,
+                ),
               ),
             ),
           ),
-          // Dark Gradient Overlay
+          // Dark Gradient Overlay (fades to black at the bottom)
           Container(
             width: double.infinity,
             height: double.infinity,
@@ -36,8 +105,10 @@ class _PlayerScreenState extends State<PlayerScreen> {
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
+                stops: const [0.0, 0.5, 0.8, 1.0],
                 colors: [
-                  Colors.black.withAlpha(100),
+                  Colors.transparent,
+                  Colors.black.withAlpha(60),
                   Colors.black.withAlpha(200),
                   Colors.black,
                 ],
@@ -56,8 +127,8 @@ class _PlayerScreenState extends State<PlayerScreen> {
                         onTap: () => Navigator.pop(context),
                         child: Container(
                           padding: const EdgeInsets.all(12),
-                          decoration: const BoxDecoration(
-                            color: Color(0xFF1A1A1A),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withAlpha(120),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
@@ -74,7 +145,10 @@ class _PlayerScreenState extends State<PlayerScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       _buildPlayerAction(Icons.access_time),
-                      _buildPlayerActionText('x1'),
+                      GestureDetector(
+                        onTap: _showPlaybackSpeedModal,
+                        child: _buildPlayerActionText(_currentSpeed),
+                      ),
                       _buildPlayerAction(Icons.download_outlined),
                       _buildPlayerAction(Icons.favorite_border),
                     ],
@@ -154,7 +228,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white.withAlpha(20),
+        color: Colors.white.withAlpha(15),
         shape: BoxShape.circle,
       ),
       child: Icon(icon, color: Colors.white, size: 24),
@@ -167,13 +241,13 @@ class _PlayerScreenState extends State<PlayerScreen> {
       width: 48,
       height: 48,
       decoration: BoxDecoration(
-        color: Colors.white.withAlpha(20),
+        color: Colors.white.withAlpha(15),
         shape: BoxShape.circle,
       ),
       child: Center(
         child: Text(
           text,
-          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+          style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
         ),
       ),
     );
